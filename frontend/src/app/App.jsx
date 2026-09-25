@@ -27,7 +27,8 @@ export default function App(){
    {active==='search'&&<section className="panel"><h2>Search</h2><p className="muted">Indexed files and symbols.</p><input className="searchbox" placeholder="Search…" value={query} onChange={e=>setQuery(e.target.value)}/>{!index?<Empty text="Build the index to search."/>:<div className="results">{matches.map((m,i)=><button key={i} onClick={()=>openFile(m.path)}><b>{m.name||m.path}</b><span>{m.kind} · {m.path}{m.line?` · line ${m.line}`:''}</span></button>)}</div>}</section>}
    {active==='codebase'&&(!index?<section className="panel"><div className="section-head"><div><h2>Codebase Intelligence</h2><p className="muted">Build the index to inspect repository structure.</p></div>{project&&<button className="primary" onClick={build}>Build / Refresh Index</button>}</div><Empty text="No intelligence index is available yet."/></section>:<section className="panel codebase"><div className="section-head"><div><span className="eyebrow">INTELLIGENCE</span><h2>Codebase</h2><p className="muted">Structural intelligence for the current repository.</p></div><button onClick={build}>Refresh Index</button></div><div className="stats compact"><Stat label="Files" value={index.stats.files}/><Stat label="Lines" value={index.stats.lines}/><Stat label="Symbols" value={index.stats.symbols}/><Stat label="References" value={index.stats.references}/><Stat label="Internal edges" value={index.stats.internalEdges}/><Stat label="Unresolved imports" value={index.unresolvedImports.length}/></div><div className="codebase-tabs">{[['overview','Overview'],['files','Files'],['symbols','Symbols'],['references','References'],['dependencies','Dependencies'],['apis','APIs'],['security','Security'],['analyzers','Analyzers']].map(([id,label])=><button key={id} className={tab===id?'active':''} onClick={()=>{setTab(id);setQuery('')}}>{label}</button>)}</div>{['symbols','references','dependencies'].includes(tab)&&<input className="searchbox" placeholder={`Filter ${tab}…`} value={query} onChange={e=>setQuery(e.target.value)}/>}<CodebaseTab tab={tab} index={index} symbols={symbols} refs={refs} deps={deps} openFile={openFile}/></section>)}
    {active==='health'&&<HealthPanel health={health} openFile={openFile}/>}
-   {['architecture','impact','git','context','reports','ai'].includes(active)&&<section className="panel"><span className="eyebrow">NEXT WORKSPACE</span><h2>{active[0].toUpperCase()+active.slice(1)}</h2><p className="muted">This surface is reserved in the RepoThink architecture and will be implemented as its intelligence layer matures.</p>{index&&active==='impact'&&<div className="callout"><b>{index.dependencies.length}</b> internal dependency edges are ready for impact traversal.</div>}</section>}
+   {active==='architecture'&&<ArchitecturePanel index={index} openFile={openFile}/>}
+   {['impact','git','context','reports','ai'].includes(active)&&<section className="panel"><span className="eyebrow">NEXT WORKSPACE</span><h2>{active[0].toUpperCase()+active.slice(1)}</h2><p className="muted">This surface is reserved in the RepoThink architecture and will be implemented as its intelligence layer matures.</p>{index&&active==='impact'&&<div className="callout"><b>{index.dependencies.length}</b> internal dependency edges are ready for impact traversal.</div>}</section>}
   </main>
   {progress&&<div className="progress"><div><b>{progress.phase}</b><span>{progress.current||0} / {progress.total||0}</span></div><div className="bar"><i style={{width:`${Math.min(100,((progress.current||0)/Math.max(1,progress.total||1))*100)}%`}}/></div></div>}
  </div>
@@ -53,6 +54,47 @@ function buildHealth(index){
  ];
  const severityCounts=issues.reduce((a,x)=>(a[x.severity]=(a[x.severity]||0)+1,a),{high:0,medium:0,low:0});
  return {score:Math.max(0,100-severityCounts.high*10-severityCounts.medium*3),issues,severityCounts,cycles,hotspots:architecture.sort((a,b)=>(b.dependencies+b.dependents)-(a.dependencies+a.dependents)).slice(0,20),stats:{issues:issues.length,cycles:cycles.length,unresolvedImports:index.unresolvedImports.length,unresolvedReferences:unresolvedRefs.length,parserErrors:parserErrors.length}};
+}
+function ArchitecturePanel({index,openFile}){
+ if(!index)return <section className="panel"><span className="eyebrow">ARCHITECTURE</span><h2>Architecture</h2><p className="muted">Build the repository index to inspect the dependency architecture.</p><Empty text="No architecture graph is available yet."/></section>;
+ const model=buildArchitectureModel(index);
+ const [filter,setFilter]=useState('');
+ const [selected,setSelected]=useState(null);
+ const visibleNodes=model.nodes.filter(n=>!filter||n.path.toLowerCase().includes(filter.toLowerCase()));
+ const visiblePaths=new Set(visibleNodes.map(n=>n.path));
+ const visibleEdges=model.edges.filter(e=>visiblePaths.has(e.from)&&visiblePaths.has(e.to));
+ const cols=4, width=900, height=Math.max(360,Math.ceil(visibleNodes.length/cols)*105);
+ return <section className="panel architecture-panel">
+  <div className="section-head"><div><span className="eyebrow">ARCHITECTURE INTELLIGENCE</span><h2>Dependency Architecture</h2><p className="muted">File-level dependency graph derived from the repository index.</p></div><div className="architecture-filter"><input className="searchbox" placeholder="Filter files…" value={filter} onChange={e=>setFilter(e.target.value)}/></div></div>
+  <div className="stats compact"><Stat label="Files" value={model.nodes.length}/><Stat label="Edges" value={model.edges.length}/><Stat label="Cycles" value={model.cycles.length}/><Stat label="Components" value={model.components}/></div>
+  <div className="architecture-layout">
+   <div className="architecture-graph">
+    <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Repository dependency graph">
+     <defs><marker id="repothink-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z"/></marker></defs>
+     {visibleEdges.map((e,i)=>{const a=visibleNodes.find(n=>n.path===e.from),b=visibleNodes.find(n=>n.path===e.to);return <line key={i} x1={a.x+95} y1={a.y+25} x2={b.x+95} y2={b.y+25} className={selected&&(selected===e.from||selected===e.to)?'graph-edge selected':''} markerEnd="url(#repothink-arrow)"/>})}
+     {visibleNodes.map(n=><g key={n.path} transform={`translate(${n.x},${n.y})`} className={selected===n.path?'graph-node selected':'graph-node'} onClick={()=>{setSelected(n.path);openFile(n.path)}}><rect width="190" height="52" rx="9"/><text x="10" y="21">{n.label.slice(0,26)}{n.label.length>26?'…':''}</text><text x="10" y="39" className="graph-meta">{n.dependencies} deps · {n.dependents} dependents</text></g>)}
+    </svg>
+   </div>
+   <div className="architecture-side"><h3>Hotspots</h3>{model.hotspots.slice(0,12).map(n=><button key={n.path} onClick={()=>openFile(n.path)}><b>{n.label}</b><span>{n.dependencies} outgoing · {n.dependents} incoming</span></button>)}{model.cycles.length>0&&<><h3>Cycles</h3>{model.cycles.slice(0,8).map((cycle,i)=><div className="cycle-item" key={i}>{cycle.map(x=>x.split('/').pop()).join(' → ')}</div>)}</>}</div>
+  </div>
+  <div className="architecture-edges"><h3>Dependency Edges</h3>{visibleEdges.slice(0,100).map((e,i)=><button key={i} onClick={()=>openFile(e.from)}><b>{e.from}</b><span>→ {e.to} · {e.module}</span></button>)}{!visibleEdges.length&&<Empty text="No matching dependency edges." />}</div>
+ </section>;
+}
+function buildArchitectureModel(index){
+ const architecture=getArchitecture(index)||[];
+ const nodes=architecture.map((n,i)=>({...n,label:n.path.split('/').pop()||n.path,x:20+(i%4)*220,y:20+Math.floor(i/4)*105}));
+ const nodeSet=new Set(nodes.map(n=>n.path));
+ const edges=uniqueEdges((index.dependencies||[]).filter(e=>nodeSet.has(e.from)&&nodeSet.has(e.to)));
+ const cycles=detectCycles(index);
+ return {nodes,edges,cycles,hotspots:nodes.slice(0,20),components:countComponents(nodes,edges)};
+}
+function uniqueEdges(edges){const seen=new Set();return edges.filter(e=>{const k=`${e.from}→${e.to}`;if(seen.has(k))return false;seen.add(k);return true})}
+function countComponents(nodes,edges){
+ const graph=new Map(nodes.map(n=>[n.path,[]]));
+ edges.forEach(e=>{graph.get(e.from)?.push(e.to);graph.get(e.to)?.push(e.from)});
+ const seen=new Set();let count=0;
+ for(const node of graph.keys()){if(seen.has(node))continue;count++;const stack=[node];seen.add(node);while(stack.length){for(const next of graph.get(stack.pop())||[]){if(!seen.has(next)){seen.add(next);stack.push(next)}}}}
+ return count;
 }
 function HealthPanel({health,openFile}){
  if(!health)return <section className="panel"><span className="eyebrow">HEALTH</span><h2>Repository Health</h2><p className="muted">Build the repository index to calculate health signals.</p><Empty text="No health report is available yet."/></section>;

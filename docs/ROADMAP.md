@@ -8,7 +8,7 @@
 | M1 | Code Intelligence 2.0 | ⬜ Planned |
 | M2 | Impact Intelligence | ⬜ Planned |
 | M3 | Semantic Search & Context Engine | ⬜ Planned |
-| M4 | Architecture Explorer | ⬜ Planned |
+| M4 | Architecture Explorer | 🔵 In progress |
 | M5 | Evidence-backed AI | ⬜ Planned |
 | M6 | MCP / Agent Integration | ⬜ Planned |
 
@@ -24,7 +24,7 @@
 - [ ] M0.05 Repository filesystem/index foundation
 - [ ] M0.06 Parser and AST foundation
 - [ ] M0.07 Symbols, definitions and references
-- [ ] M0.08 Dependency graph
+- [x] M0.08 Dependency graph
 - [ ] M0.09 Health/analyzers
 - [ ] M0.10 Git intelligence
 - [ ] M0.11 IndexedDB/cache
@@ -92,6 +92,8 @@
 - [ ] M3.08 Context quality evaluation
 
 ## M4 — Architecture Explorer
+
+**Current slice:** file-level dependency architecture is now exposed as an interactive local graph with hotspots, cycles, connected-component metrics, filtering, and source-file navigation. Symbol/API/database/test graph layers remain part of the later M4 work.
 
 - [ ] M4.01 System graph
 - [ ] M4.02 Module graph
