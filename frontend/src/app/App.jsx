@@ -56,7 +56,8 @@ function CodebaseTab({tab,index,symbols,refs,deps,openFile}){
  if(tab==='files')return <List items={index.files.map(f=>({title:f.path,meta:`${f.language} · ${f.lines.toLocaleString()} lines · ${f.symbols.length} symbols`,path:f.path}))} openFile={openFile}/>;
  if(tab==='symbols')return <List items={symbols.map(s=>({title:s.name,meta:`${s.kind} · ${s.path}:${s.line}`,path:s.path}))} openFile={openFile}/>;
  if(tab==='references')return <List items={refs.map(r=>({title:r.name,meta:`${r.from}:${r.line} · ${r.resolvedSymbols.length?'resolved':'unresolved'}`,path:r.from}))} openFile={openFile}/>;
- if(tab==='dependencies')return <List items={deps.map(d=>({title:d.from,meta:`→ ${d.to} · ${d.module}`,path:d.from}))} openFile={openFile}/>;
+ if(tab==='dependencies')return <List items={deps.map(d=>({title:d.from,meta:`→ ${d.to} · ${d.module}`,path:d.from}))} openFile={openFile}/>
+ if(tab==='analyzers')return <div className="analyzer-grid">{(index.project?.frameworks||[]).map((x,i)=><article className="overview-card" key={i}><h3>{x.name}</h3><p className="muted">Detected from {x.evidence}.</p></article>)}{!(index.project?.frameworks||[]).length&&<Empty text="No framework signals detected yet."/>}</div>;;
  return <div className="planned"><b>{tab[0].toUpperCase()+tab.slice(1)}</b><p className="muted">Scheduled for the corresponding RepoThink milestone. This will be implemented from the unified intelligence model rather than copied as a standalone utility.</p></div>
 }
 function List({items,openFile}){return <div className="table-list">{items.map((x,i)=><button key={i} onClick={()=>openFile(x.path)}><b>{x.title}</b><span>{x.meta}</span></button>)}</div>}
