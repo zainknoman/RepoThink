@@ -4,7 +4,7 @@
 
 | Milestone | Goal | Status |
 |---|---|---|
-| M0 | Foundation & Product Extraction | 🔵 In progress — 20 tasks completed |
+| M0 | Foundation & Product Extraction | ✅ Complete — acceptance criteria validated |
 | M1 | Code Intelligence 2.0 | ⬜ Planned |
 | M2 | Impact Intelligence | ⬜ Planned |
 | M3 | Semantic Search & Context Engine | ⬜ Planned |
@@ -42,19 +42,19 @@
 - [x] M0.21 Rebuild Editor
 
 ### Product cleanup
-- [ ] M0.22 Remove Developer Tools
-- [ ] M0.23 Remove Temenos/OFS functionality
-- [ ] M0.24 Remove Markdown utility workspace
-- [ ] M0.25 Remove Engineering utilities
-- [ ] M0.26 Remove obsolete Transform functionality
-- [ ] M0.27 Remove legacy Python/FastAPI backend
-- [ ] M0.28 Clean dependencies and scripts
+- [x] M0.22 Remove Developer Tools
+- [x] M0.23 Remove Temenos/OFS functionality
+- [x] M0.24 Remove Markdown utility workspace
+- [x] M0.25 Remove Engineering utilities
+- [x] M0.26 Remove obsolete Transform functionality
+- [x] M0.27 Remove legacy Python/FastAPI backend
+- [x] M0.28 Clean dependencies and scripts
 
 ### Quality
-- [ ] M0.29 Add intelligence fixtures/tests
+- [x] M0.29 Add intelligence fixtures/tests
 - [x] M0.30 Establish CI baseline
 - [x] M0.31 Refresh README and technical documentation
-- [ ] M0.32 Validate M0 acceptance criteria
+- [x] M0.32 Validate M0 acceptance criteria
 
 ## M1 — Code Intelligence 2.0
 
@@ -145,3 +145,7 @@ M0 is complete when:
 ## Implementation rule
 
 RepoMind is a reference implementation, not a source tree to copy wholesale. Each migrated capability must be placed in the RepoThink architecture and simplified or redesigned where necessary.
+
+### M0 completion validation
+
+M0 cleanup was audited against the RepoThink product boundary. The legacy Codebase Workbench backend and the previously identified Developer Tools, Temenos/OFS, Markdown utility, Engineering utility, and Transform surfaces are absent from RepoThink. Intelligence fixtures now exercise indexing, symbol/export discovery, dependency resolution, unresolved-import detection, relationship traversal, and cycle detection. CI runs these tests before the production build.
