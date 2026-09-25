@@ -77,7 +77,7 @@ function ArchitecturePanel({index,openFile}){
    </div>
    <div className="architecture-side"><h3>Hotspots</h3>{model.hotspots.slice(0,12).map(n=><button key={n.path} onClick={()=>openFile(n.path)}><b>{n.label}</b><span>{n.dependencies} outgoing · {n.dependents} incoming</span></button>)}{model.cycles.length>0&&<><h3>Cycles</h3>{model.cycles.slice(0,8).map((cycle,i)=><div className="cycle-item" key={i}>{cycle.map(x=>x.split('/').pop()).join(' → ')}</div>)}</>}</div>
   </div>
-  <div className="architecture-edges"><h3>Dependency Edges</h3>{visibleEdges.slice(0,100).map((e,i)=><button key={i} onClick={()=>openFile(e.from)}><b>{e.from}</b><span>→ {e.to} · {e.module}</span></button>)}{!visibleEdges.length&&<Empty text="No matching dependency edges."/ >}</div>
+  <div className="architecture-edges"><h3>Dependency Edges</h3>{visibleEdges.slice(0,100).map((e,i)=><button key={i} onClick={()=>openFile(e.from)}><b>{e.from}</b><span>→ {e.to} · {e.module}</span></button>)}{!visibleEdges.length&&<Empty text="No matching dependency edges." />}</div>
  </section>;
 }
 function buildArchitectureModel(index){
