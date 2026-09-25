@@ -1,212 +1,43 @@
 import { useMemo, useState } from 'react';
 import { buildRepositoryIndex } from '../intelligence/index/repository.js';
 
-const TEXT_EXTENSIONS = new Set([
-  '.js','.jsx','.ts','.tsx','.vue','.py','.java','.kt','.go','.rs','.php','.cs',
-  '.cpp','.c','.h','.html','.css','.scss','.json','.md','.txt','.xml','.yaml',
-  '.yml','.sql','.sh','.bat','.ps1','.env'
-]);
-const IGNORE_DIRS = new Set([
-  '.git','node_modules','dist','build','.venv','venv','__pycache__','.idea','.vscode',
-  'coverage','.next','.nuxt','.turbo','.cache'
-]);
+const EXT=new Set(['.js','.jsx','.ts','.tsx','.vue','.py','.java','.kt','.go','.rs','.php','.cs','.cpp','.c','.h','.html','.css','.scss','.json','.md','.txt','.xml','.yaml','.yml','.sql','.sh','.bat','.ps1','.env']);
+const IGNORE=new Set(['.git','node_modules','dist','build','.venv','venv','__pycache__','.idea','.vscode','coverage','.next','.nuxt','.turbo','.cache']);
+const ext=n=>{const i=n.lastIndexOf('.');return i>=0?n.slice(i).toLowerCase():''};
+async function collect(h,p='',out=[]){for await(const e of h.values()){if(e.kind==='directory'){if(!IGNORE.has(e.name))await collect(e,p?p+'/'+e.name:e.name,out)}else if(e.kind==='file'&&EXT.has(ext(e.name)))out.push({path:p?p+'/'+e.name:e.name,name:e.name,ext:ext(e.name),text:true,handle:e})}return out}
+const Stat=({label,value})=><article className="stat"><span>{label}</span><strong>{Number(value||0).toLocaleString()}</strong></article>;
 
-function extensionOf(name) {
-  const i = name.lastIndexOf('.');
-  return i >= 0 ? name.slice(i).toLowerCase() : '';
+export default function App(){
+ const [project,setProject]=useState(null),[index,setIndex]=useState(null),[active,setActive]=useState('overview'),[status,setStatus]=useState('Open a local repository to begin.'),[progress,setProgress]=useState(null),[query,setQuery]=useState(''),[file,setFile]=useState(null),[tab,setTab]=useState('overview');
+ async function openRepo(){if(!window.showDirectoryPicker){setStatus('Use Chrome or Edge with File System Access API.');return}try{const h=await window.showDirectoryPicker({mode:'read'});setStatus('Scanning…');const files=await collect(h);setProject({name:h.name,files,h});setIndex(null);setFile(null);setStatus(`Loaded ${files.length.toLocaleString()} text files. Build the index when ready.`)}catch(e){if(e?.name!=='AbortError')setStatus(e?.message||'Unable to open repository.')}}
+ async function build(){if(!project)return;try{setProgress({phase:'analyze',current:0,total:project.files.length});const r=await buildRepositoryIndex(project,{onProgress:setProgress});setIndex(r);setProgress(null);setActive('codebase');setStatus(`Index complete: ${r.stats.files.toLocaleString()} files analyzed.`)}catch(e){setProgress(null);setStatus(e?.message||'Indexing failed.')}}
+ async function openFile(path){const f=project?.files.find(x=>x.path===path);if(!f)return;setFile({path,content:await(await f.handle.getFile()).text()});setActive('explorer')}
+ const matches=useMemo(()=>{if(!index||!query.trim())return[];const q=query.toLowerCase();return [...index.symbols.filter(s=>s.name.toLowerCase().includes(q)||s.path.toLowerCase().includes(q)).map(s=>({kind:'symbol',...s})),...index.files.filter(f=>f.path.toLowerCase().includes(q)).map(f=>({kind:'file',...f}))].slice(0,100)},[index,query]);
+ const symbols=(index?.symbols||[]).filter(s=>!query||s.name.toLowerCase().includes(query.toLowerCase())).slice(0,300);
+ const refs=(index?.references||[]).filter(r=>!query||r.name.toLowerCase().includes(query.toLowerCase())).slice(0,300);
+ const deps=(index?.dependencies||[]).filter(d=>!query||d.from.toLowerCase().includes(query.toLowerCase())||d.to.toLowerCase().includes(query.toLowerCase())).slice(0,300);
+ const nav=[['overview','Overview'],['explorer','Explorer'],['search','Search'],['codebase','Codebase'],['architecture','Architecture'],['impact','Impact'],['health','Health'],['git','Git'],['context','Context'],['reports','Reports'],['ai','AI']];
+ return <div className="shell">
+  <header className="topbar"><div className="brand"><div className="mark">R</div><div><strong>RepoThink</strong><small>Codebase Intelligence Workspace</small></div></div><div className="actions"><button onClick={openRepo}>Open Repository</button><button className="primary" disabled={!project||!!progress} onClick={build}>{progress?'Indexing…':'Build Index'}</button></div></header>
+  <div className="statusbar"><span>{project?`Repository: ${project.name}`:'No repository open'}</span><span>{status}</span></div>
+  <nav>{nav.map(([id,label])=><button key={id} className={active===id?'active':''} onClick={()=>setActive(id)}>{label}</button>)}</nav>
+  <main>
+   {active==='overview'&&<><section className="hero"><div><span className="eyebrow">LOCAL-FIRST SOFTWARE UNDERSTANDING</span><h1>Think through an unfamiliar codebase.</h1><p>Open a local repository, build a structural index, then explore files, symbols, references and dependencies without uploading the project.</p><button className="primary large" onClick={openRepo}>Open Repository</button></div><div className="journey"><b>Open → Index → Understand → Analyze</b><span>Search → Trace → Impact → Context → AI</span></div></section>{project&&<div className="stats"><Stat label="Text files" value={project.files.length}/><Stat label="Indexed files" value={index?.stats.files}/><Stat label="Symbols" value={index?.stats.symbols}/><Stat label="Dependencies" value={index?.dependencies.length}/></div>}</>}
+   {active==='explorer'&&<section className="panel"><h2>Explorer</h2><p className="muted">Browse and inspect local source files.</p>{!project?<Empty/>:<div className="explorer-layout"><div className="file-list">{project.files.map(f=><button key={f.path} className={file?.path===f.path?'selected':''} onClick={()=>openFile(f.path)}>{f.path}</button>)}</div><div className="viewer"><b>{file?.path||'Select a file'}</b><pre className="source">{file?.content||'Select a file to inspect its source.'}</pre></div></div>}</section>}
+   {active==='search'&&<section className="panel"><h2>Search</h2><p className="muted">Indexed files and symbols.</p><input className="searchbox" placeholder="Search…" value={query} onChange={e=>setQuery(e.target.value)}/>{!index?<Empty text="Build the index to search."/>:<div className="results">{matches.map((m,i)=><button key={i} onClick={()=>openFile(m.path)}><b>{m.name||m.path}</b><span>{m.kind} · {m.path}{m.line?` · line ${m.line}`:''}</span></button>)}</div>}</section>}
+   {active==='codebase'&&(!index?<section className="panel"><div className="section-head"><div><h2>Codebase Intelligence</h2><p className="muted">Build the index to inspect repository structure.</p></div>{project&&<button className="primary" onClick={build}>Build / Refresh Index</button>}</div><Empty text="No intelligence index is available yet."/></section>:<section className="panel codebase"><div className="section-head"><div><span className="eyebrow">INTELLIGENCE</span><h2>Codebase</h2><p className="muted">Structural intelligence for the current repository.</p></div><button onClick={build}>Refresh Index</button></div><div className="stats compact"><Stat label="Files" value={index.stats.files}/><Stat label="Lines" value={index.stats.lines}/><Stat label="Symbols" value={index.stats.symbols}/><Stat label="References" value={index.stats.references}/><Stat label="Internal edges" value={index.stats.internalEdges}/><Stat label="Unresolved imports" value={index.unresolvedImports.length}/></div><div className="codebase-tabs">{[['overview','Overview'],['files','Files'],['symbols','Symbols'],['references','References'],['dependencies','Dependencies'],['apis','APIs'],['security','Security'],['analyzers','Analyzers']].map(([id,label])=><button key={id} className={tab===id?'active':''} onClick={()=>{setTab(id);setQuery('')}}>{label}</button>)}</div>{['symbols','references','dependencies'].includes(tab)&&<input className="searchbox" placeholder={`Filter ${tab}…`} value={query} onChange={e=>setQuery(e.target.value)}/>}<CodebaseTab tab={tab} index={index} symbols={symbols} refs={refs} deps={deps} openFile={openFile}/></section>)}
+   {['architecture','impact','health','git','context','reports','ai'].includes(active)&&<section className="panel"><span className="eyebrow">NEXT WORKSPACE</span><h2>{active[0].toUpperCase()+active.slice(1)}</h2><p className="muted">This surface is reserved in the RepoThink architecture and will be implemented as its intelligence layer matures.</p>{index&&active==='health'&&<div className="callout"><b>{index.unresolvedImports.length}</b> unresolved relative imports detected.</div>}{index&&active==='impact'&&<div className="callout"><b>{index.dependencies.length}</b> internal dependency edges are ready for impact traversal.</div>}</section>}
+  </main>
+  {progress&&<div className="progress"><div><b>{progress.phase}</b><span>{progress.current||0} / {progress.total||0}</span></div><div className="bar"><i style={{width:`${Math.min(100,((progress.current||0)/Math.max(1,progress.total||1))*100)}%`}}/></div></div>}
+ </div>
 }
-function isText(name) { return TEXT_EXTENSIONS.has(extensionOf(name)); }
-
-async function collectDirectory(handle, prefix = '', files = []) {
-  for await (const entry of handle.values()) {
-    if (entry.kind === 'directory') {
-      if (IGNORE_DIRS.has(entry.name)) continue;
-      await collectDirectory(entry, prefix ? prefix + '/' + entry.name : entry.name, files);
-    } else if (entry.kind === 'file' && isText(entry.name)) {
-      const path = prefix ? prefix + '/' + entry.name : entry.name;
-      files.push({
-        path,
-        name: entry.name,
-        ext: extensionOf(entry.name),
-        text: true,
-        handle: entry
-      });
-    }
-  }
-  return files;
+function CodebaseTab({tab,index,symbols,refs,deps,openFile}){
+ if(tab==='overview')return <div className="intelligence-overview"><div className="overview-card"><h3>Project profile</h3><p><b>{index.repository}</b></p><p className="muted">{Object.entries(index.languages||{}).map(([n,c])=>`${n}: ${c}`).join(' · ')}</p></div><div className="overview-card"><h3>Resolution</h3><p>{index.stats.resolvedReferences.toLocaleString()} resolved references</p><p>{index.stats.unresolvedReferences.toLocaleString()} unresolved references</p><p>{index.unresolvedImports.length.toLocaleString()} unresolved relative imports</p></div></div>;
+ if(tab==='files')return <List items={index.files.map(f=>({title:f.path,meta:`${f.language} · ${f.lines.toLocaleString()} lines · ${f.symbols.length} symbols`,path:f.path}))} openFile={openFile}/>;
+ if(tab==='symbols')return <List items={symbols.map(s=>({title:s.name,meta:`${s.kind} · ${s.path}:${s.line}`,path:s.path}))} openFile={openFile}/>;
+ if(tab==='references')return <List items={refs.map(r=>({title:r.name,meta:`${r.from}:${r.line} · ${r.resolvedSymbols.length?'resolved':'unresolved'}`,path:r.from}))} openFile={openFile}/>;
+ if(tab==='dependencies')return <List items={deps.map(d=>({title:d.from,meta:`→ ${d.to} · ${d.module}`,path:d.from}))} openFile={openFile}/>;
+ return <div className="planned"><b>{tab[0].toUpperCase()+tab.slice(1)}</b><p className="muted">Scheduled for the corresponding RepoThink milestone. This will be implemented from the unified intelligence model rather than copied as a standalone utility.</p></div>
 }
-
-function Stat({ label, value }) {
-  return <article className="stat"><span>{label}</span><strong>{value}</strong></article>;
-}
-
-export default function App() {
-  const [project, setProject] = useState(null);
-  const [index, setIndex] = useState(null);
-  const [active, setActive] = useState('overview');
-  const [status, setStatus] = useState('Open a local repository to begin.');
-  const [progress, setProgress] = useState(null);
-  const [query, setQuery] = useState('');
-  const [selectedPath, setSelectedPath] = useState(null);
-
-  const files = index?.files || project?.files || [];
-  const matches = useMemo(() => {
-    if (!index || !query.trim()) return [];
-    const q = query.toLowerCase();
-    return [
-      ...index.symbols.filter(s => s.name.toLowerCase().includes(q)).map(s => ({ type:'symbol', ...s })),
-      ...index.files.filter(f => f.path.toLowerCase().includes(q)).map(f => ({ type:'file', path:f.path }))
-    ].slice(0, 80);
-  }, [index, query]);
-
-  async function openRepository() {
-    if (!window.showDirectoryPicker) {
-      setStatus('This browser does not expose the File System Access API. Use a Chromium-based browser.');
-      return;
-    }
-    try {
-      const handle = await window.showDirectoryPicker({ mode: 'read' });
-      setStatus('Scanning repository files…');
-      const collected = await collectDirectory(handle);
-      const nextProject = { name: handle.name, files: collected, handle };
-      setProject(nextProject);
-      setIndex(null);
-      setSelectedPath(null);
-      setStatus(`Loaded ${collected.length.toLocaleString()} text files. Build the intelligence index when ready.`);
-    } catch (error) {
-      if (error?.name !== 'AbortError') setStatus(error?.message || 'Unable to open repository.');
-    }
-  }
-
-  async function buildIndex() {
-    if (!project) return;
-    try {
-      setStatus('Building repository intelligence…');
-      setProgress({ current: 0, total: project.files.length, phase: 'start' });
-      const result = await buildRepositoryIndex(project, {
-        onProgress: p => setProgress(p)
-      });
-      setIndex(result);
-      setActive('codebase');
-      setStatus(`Index complete: ${result.stats.files.toLocaleString()} files analyzed.`);
-      setProgress(null);
-    } catch (error) {
-      setProgress(null);
-      setStatus(error?.message || 'Indexing failed.');
-    }
-  }
-
-  const selected = index?.files.find(f => f.path === selectedPath);
-
-  return (
-    <div className="shell">
-      <header className="topbar">
-        <div className="brand">
-          <div className="mark">R</div>
-          <div><strong>RepoThink</strong><small>Codebase Intelligence Workspace</small></div>
-        </div>
-        <div className="actions">
-          <button onClick={openRepository}>Open Repository</button>
-          <button className="primary" disabled={!project || !!progress} onClick={buildIndex}>
-            {progress ? 'Indexing…' : 'Build Index'}
-          </button>
-        </div>
-      </header>
-
-      <div className="statusbar">
-        <span>{project ? `Repository: ${project.name}` : 'No repository open'}</span>
-        <span>{status}</span>
-      </div>
-
-      <nav>
-        {[
-          ['overview','Overview'],['explorer','Explorer'],['search','Search'],['codebase','Codebase'],
-          ['architecture','Architecture'],['impact','Impact'],['health','Health'],['git','Git'],
-          ['context','Context'],['reports','Reports'],['ai','AI']
-        ].map(([id,label]) =>
-          <button key={id} className={active === id ? 'active' : ''} onClick={() => setActive(id)}>{label}</button>
-        )}
-      </nav>
-
-      <main>
-        {active === 'overview' && (
-          <section>
-            <div className="hero">
-              <div>
-                <span className="eyebrow">LOCAL-FIRST SOFTWARE UNDERSTANDING</span>
-                <h1>Think through an unfamiliar codebase.</h1>
-                <p>Open a local repository, build a structural index, then explore files, symbols, references and dependencies without uploading the project.</p>
-                <button className="primary large" onClick={openRepository}>Open Repository</button>
-              </div>
-              <div className="journey">
-                <b>Open → Index → Understand → Analyze</b>
-                <span>Search → Trace → Impact → Context → AI</span>
-              </div>
-            </div>
-            {project && <div className="stats">
-              <Stat label="Text files" value={project.files.length.toLocaleString()} />
-              <Stat label="Indexed files" value={(index?.stats.files || 0).toLocaleString()} />
-              <Stat label="Symbols" value={(index?.stats.symbols || 0).toLocaleString()} />
-              <Stat label="Dependencies" value={(index?.dependencies.length || 0).toLocaleString()} />
-            </div>}
-          </section>
-        )}
-
-        {active === 'explorer' && (
-          <section className="panel">
-            <h2>Explorer</h2>
-            <p className="muted">Browse files discovered in the local repository.</p>
-            {!project ? <Empty /> : <div className="file-list">{files.map(f =>
-              <button key={f.path} onClick={() => setSelectedPath(f.path)}>{f.path}</button>
-            )}</div>}
-            {selected && <pre className="source">{JSON.stringify(selected, null, 2)}</pre>}
-          </section>
-        )}
-
-        {active === 'search' && (
-          <section className="panel">
-            <h2>Search</h2>
-            <input className="searchbox" placeholder="Search files or symbols…" value={query} onChange={e => setQuery(e.target.value)} />
-            {!index ? <Empty text="Build the index to search symbols and files." /> :
-              <div className="results">{matches.map((m,i) =>
-                <button key={i} onClick={() => {setSelectedPath(m.path); setActive('explorer')}}>
-                  <b>{m.name || m.path}</b><span>{m.type} · {m.path}</span>
-                </button>
-              )}</div>}
-          </section>
-        )}
-
-        {active === 'codebase' && (
-          <section>
-            <div className="section-head"><div><h2>Codebase Intelligence</h2><p className="muted">Structural index of the repository.</p></div><button className="primary" disabled={!project || !!progress} onClick={buildIndex}>Build / Refresh Index</button></div>
-            {!index ? <Empty text="Open a repository and build its intelligence index." /> :
-              <div className="stats">
-                <Stat label="Files" value={index.stats.files.toLocaleString()} />
-                <Stat label="Lines" value={index.stats.lines.toLocaleString()} />
-                <Stat label="Symbols" value={index.stats.symbols.toLocaleString()} />
-                <Stat label="References" value={index.stats.references.toLocaleString()} />
-                <Stat label="Internal edges" value={index.stats.internalEdges.toLocaleString()} />
-                <Stat label="Unresolved imports" value={index.unresolvedImports.length.toLocaleString()} />
-              </div>}
-          </section>
-        )}
-
-        {['architecture','impact','health','git','context','reports','ai'].includes(active) && (
-          <section className="panel">
-            <span className="eyebrow">NEXT WORKSPACE</span>
-            <h2>{active[0].toUpperCase() + active.slice(1)}</h2>
-            <p className="muted">The workspace is reserved in the new RepoThink architecture. Intelligence foundations are being implemented before this surface is expanded.</p>
-            {index && active === 'health' && <div className="callout">{index.unresolvedImports.length} unresolved relative imports detected.</div>}
-            {index && active === 'impact' && <div className="callout">{index.dependencies.length} internal dependency edges are available for impact traversal.</div>}
-          </section>
-        )}
-      </main>
-
-      {progress && <div className="progress"><div><b>{progress.phase}</b><span>{progress.current || 0} / {progress.total || 0}</span></div><div className="bar"><i style={{width: `${Math.min(100, ((progress.current || 0) / Math.max(1, progress.total || 1)) * 100)}%`}} /></div></div>}
-    </div>
-  );
-}
-
-function Empty({ text='Open a repository to begin.' }) {
-  return <div className="empty">{text}</div>;
-}
+function List({items,openFile}){return <div className="table-list">{items.map((x,i)=><button key={i} onClick={()=>openFile(x.path)}><b>{x.title}</b><span>{x.meta}</span></button>)}</div>}
+function Empty({text='Open a repository to begin.'}){return <div className="empty">{text}</div>}
