@@ -16,7 +16,7 @@ import {renderMermaid,buildArchitectureMermaid} from "../../intelligence/diagram
 const Button=({children,...p})=><button className="primary" {...p}>{children}</button>;
 const Row=({title,meta,onClick})=><button className="table-row" onClick={onClick}><b>{title}</b><span>{meta}</span></button>;
 
-export default function IntelligencePanel({index,health,project,aiConfig,setAIConfig,openFile}){
+export default function IntelligencePanel({index,health,project,aiConfig,setAIConfig,openFile,onBuild}){
  const [tab,setTab]=useState("overview"),[query,setQuery]=useState(""),[question,setQuestion]=useState(""),[evidence,setEvidence]=useState(null),[answer,setAnswer]=useState(""),[busy,setBusy]=useState(false),[baseline,setBaseline]=useState(()=>{try{return JSON.parse(localStorage.getItem("repothink-baseline-"+(project?.name||""))||"{}")}catch{return{}}}),[mcpOutput,setMcpOutput]=useState(""),[selectedFile,setSelectedFile]=useState(""),[api,setApi]=useState([]),[security,setSecurity]=useState([]),[analyzerResults,setAnalyzerResults]=useState({}),[report,setReport]=useState(""),[diagram,setDiagram]=useState(""),[diagramSvg,setDiagramSvg]=useState(""),[diagramError,setDiagramError]=useState("");
  const packages=useMemo(()=>index?.project?.packages||detectProjectPackages(index),[index]);
  const graph=useMemo(()=>index?buildCallGraph(index):{edges:[],nodes:[]},[index]);
@@ -28,7 +28,7 @@ export default function IntelligencePanel({index,health,project,aiConfig,setAICo
  const search=useMemo(()=>index?hybridSearch(index,query,{limit:50}):[],[index,query]);
  const arch=useMemo(()=>index?buildArchitecture(index):null,[index]);
  const cycles=useMemo(()=>index?detectCycles(index):[],[index]);
- if(!index)return <section className="panel"><h2>Intelligence Studio</h2><Empty text="Build the repository index to use M1–M6 intelligence."/></section>;
+ if(!index)return <section className="panel"><div className="section-head"><div><span className="eyebrow">CODEBASE INTELLIGENCE</span><h2>Repository Intelligence</h2><p className="muted">Build the local index to unlock search, symbols, architecture, analyzers, impact, AI and MCP.</p></div>{project&&<Button onClick={onBuild}>Build / Refresh Index</Button>}</div><Empty text="No intelligence index is available yet."/></section>;
  const contextBuilder=(files,opts)=>buildRepositoryContext(index,files,opts);
  async function ask(){setBusy(true);try{const b=retrieveEvidence(index,question,{limit:30,maxFiles:8,maxTokens:12000});setEvidence(b);if(aiConfig?.apiKey)setAnswer(await askAI(aiConfig,b,index))}catch(e){setAnswer(e.message)}finally{setBusy(false)}}
  async function callTool(name,args){try{const fn=createMCPTools(index,health,contextBuilder)[name];setMcpOutput(JSON.stringify(await fn(args),null,2))}catch(e){setMcpOutput(JSON.stringify({error:e.message},null,2))}}
