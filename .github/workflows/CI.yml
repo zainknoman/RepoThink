@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         working-directory: frontend
         run: npm install
+      - name: Test intelligence
+        working-directory: frontend
+        run: npm test
       - name: Build frontend
         working-directory: frontend
         run: npm run build
