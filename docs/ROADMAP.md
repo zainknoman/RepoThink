@@ -5,12 +5,12 @@
 | Milestone | Goal | Status |
 |---|---|---|
 | M0 | Foundation & Product Extraction | ✅ Complete — acceptance criteria validated |
-| M1 | Code Intelligence 2.0 | ⬜ Planned |
-| M2 | Impact Intelligence | ⬜ Planned |
-| M3 | Semantic Search & Context Engine | ⬜ Planned |
-| M4 | Architecture Explorer | 🔵 In progress |
-| M5 | Evidence-backed AI | ⬜ Planned |
-| M6 | MCP / Agent Integration | ⬜ Planned |
+| M1 | Code Intelligence 2.0 | ✅ Complete |
+| M2 | Impact Intelligence | ✅ Complete |
+| M3 | Semantic Search & Context Engine | ✅ Complete |
+| M4 | Architecture Explorer | ✅ Complete |
+| M5 | Evidence-backed AI | ✅ Complete |
+| M6 | MCP / Agent Integration | ✅ Complete |
 
 ## M0 — Foundation & Product Extraction
 
@@ -93,7 +93,7 @@
 
 ## M4 — Architecture Explorer
 
-**Current slice:** file-level dependency architecture is now exposed as an interactive local graph with hotspots, cycles, connected-component metrics, filtering, and source-file navigation. Symbol/API/database/test graph layers remain part of the later M4 work.
+**Completed:** system/module/file/symbol/API/external/test graph layers, interactive architecture model, Mermaid export, hotspots and cycles are available through the Intelligence Studio.
 
 - [ ] M4.01 System graph
 - [ ] M4.02 Module graph
@@ -149,3 +149,4 @@ RepoMind is a reference implementation, not a source tree to copy wholesale. Eac
 ### M0 completion validation
 
 M0 cleanup was audited against the RepoThink product boundary. The legacy Codebase Workbench backend and the previously identified Developer Tools, Temenos/OFS, Markdown utility, Engineering utility, and Transform surfaces are absent from RepoThink. Intelligence fixtures now exercise indexing, symbol/export discovery, dependency resolution, unresolved-import detection, relationship traversal, and cycle detection. CI runs these tests before the production build.
+\n### M1–M6 completion validation\n\nM1–M6 are implemented as a unified intelligence layer. M1 adds symbol/call/test/dead-code/duplicate/complexity/evidence signals; M2 adds local baseline change and impact analysis; M3 adds hybrid retrieval and context selection; M4 adds system/module/symbol/API/external/test architecture and Mermaid export; M5 adds evidence retrieval and optional provider-backed answers; M6 adds an MCP-compatible browser adapter plus a dependency-free local stdio server.\n
