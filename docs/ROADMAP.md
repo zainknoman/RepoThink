@@ -4,7 +4,7 @@
 
 | Milestone | Goal | Status |
 |---|---|---|
-| M0 | Foundation & Product Extraction | 🔵 In progress |
+| M0 | Foundation & Product Extraction | 🔵 In progress — 10 additional tasks completed |
 | M1 | Code Intelligence 2.0 | ⬜ Planned |
 | M2 | Impact Intelligence | ⬜ Planned |
 | M3 | Semantic Search & Context Engine | ⬜ Planned |
@@ -25,18 +25,18 @@
 - [ ] M0.06 Parser and AST foundation
 - [ ] M0.07 Symbols, definitions and references
 - [x] M0.08 Dependency graph
-- [ ] M0.09 Health/analyzers
-- [ ] M0.10 Git intelligence
-- [ ] M0.11 IndexedDB/cache
-- [ ] M0.12 Reports/documentation
-- [ ] M0.13 Context Builder
-- [ ] M0.14 AI provider foundation
+- [x] M0.09 Health/analyzers
+- [x] M0.10 Git intelligence
+- [x] M0.11 IndexedDB/cache
+- [x] M0.12 Reports/documentation
+- [x] M0.13 Context Builder
+- [x] M0.14 AI provider foundation
 
 ### Application
-- [ ] M0.15 Rebuild application shell
-- [ ] M0.16 Rebuild navigation
-- [ ] M0.17 Rebuild Codebase workspace
-- [ ] M0.18 Rebuild Overview
+- [x] M0.15 Rebuild application shell
+- [x] M0.16 Rebuild navigation
+- [x] M0.17 Rebuild Codebase workspace
+- [x] M0.18 Rebuild Overview
 - [ ] M0.19 Rebuild Explorer
 - [ ] M0.20 Rebuild Search
 - [ ] M0.21 Rebuild Editor
@@ -52,8 +52,8 @@
 
 ### Quality
 - [ ] M0.29 Add intelligence fixtures/tests
-- [ ] M0.30 Establish CI baseline
-- [ ] M0.31 Refresh README and technical documentation
+- [x] M0.30 Establish CI baseline
+- [x] M0.31 Refresh README and technical documentation
 - [ ] M0.32 Validate M0 acceptance criteria
 
 ## M1 — Code Intelligence 2.0
