@@ -545,8 +545,8 @@ export async function buildContext(index, files, options = {}) {
   for (const item of index?.files || []) {
     if (!expanded.has(item.path)) continue;
     const source = index._fileHandles?.get(item.path);
-    if (!source) continue;
-    const content = await (await source.handle.getFile()).text();
+    const content = item.source ?? (source ? await (await source.handle.getFile()).text() : "");
+    if (!content) continue;
     tokens += estimateTokens(content);
     chunks.push(options.includeMetadata
       ? `## ${item.path}\nLanguage: ${item.language}\nLines: ${item.lines}\nSymbols: ${item.symbols.length}\n\n${content}`
