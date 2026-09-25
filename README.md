@@ -9,12 +9,12 @@ Open Repository → Index → Understand → Search → Explore → Analyze → 
 ## Roadmap
 
 - [x] M0 — Foundation & Product Extraction
-- [ ] M1 — Code Intelligence 2.0
-- [ ] M2 — Impact Intelligence
-- [ ] M3 — Semantic Search & Context Engine
-- [ ] M4 — Architecture Explorer
-- [ ] M5 — Evidence-backed AI
-- [ ] M6 — MCP / Agent Integration
+- [x] M1 — Code Intelligence 2.0
+- [x] M2 — Impact Intelligence
+- [x] M3 — Semantic Search & Context Engine
+- [x] M4 — Architecture Explorer
+- [x] M5 — Evidence-backed AI
+- [x] M6 — MCP / Agent Integration
 
 See `docs/ROADMAP.md` for the implementation tracker and `docs/ARCHITECTURE.md` for the target architecture.
 
@@ -35,3 +35,4 @@ RepoMind is the reference implementation for selected intelligence capabilities.
 ## Current status
 
 M0 is complete and validated. The next planned milestone is M1 — Code Intelligence 2.0. M4 has an active file-level dependency-graph slice; its remaining symbol/API/database/test graph layers are still planned.
+\n## M1–M6 implementation\n\nThe Intelligence Studio now combines code intelligence, impact analysis, hybrid search/context selection, architecture modeling and Mermaid export, evidence-backed AI retrieval, and MCP-compatible tools. A dependency-free local MCP stdio server is available under `mcp/`.\n
