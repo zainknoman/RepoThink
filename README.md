@@ -36,3 +36,9 @@ RepoMind is the reference implementation for selected intelligence capabilities.
 
 M0 is complete and validated. The next planned milestone is M1 — Code Intelligence 2.0. M4 has an active file-level dependency-graph slice; its remaining symbol/API/database/test graph layers are still planned.
 \n## M1–M6 implementation\n\nThe Intelligence Studio now combines code intelligence, impact analysis, hybrid search/context selection, architecture modeling and Mermaid export, evidence-backed AI retrieval, and MCP-compatible tools. A dependency-free local MCP stdio server is available under `mcp/`.\n
+
+## RepoMind parity upgrade
+
+RepoThink now uses RepoMind as a proven behavior reference while keeping RepoThink's modular M1–M6 architecture. The unified Codebase workspace restores clear indexed/source search, API discovery, security heuristics, framework analyzers, project/module reports, source-backed Context Builder, evidence-backed AI, and interactive Mermaid diagrams.
+
+See `docs/REPOMIND_PARITY.md` for the comparison, identified gaps, and validation scope.
