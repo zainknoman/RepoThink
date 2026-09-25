@@ -6,7 +6,6 @@ import {buildArchitecture} from "../../intelligence/architecture.js";
 import {detectCycles} from "../../intelligence/index/repository.js";
 import {retrieveEvidence,askAI} from "../../ai/evidence.js";
 import {AI_PROVIDERS} from "../../ai/providers.js";
-import {AI_PROVIDERS} from "../../ai/providers.js";
 import {createMCPTools,mcpToolDefinitions} from "../../mcp/tools.js";
 import {buildRepositoryContext} from "../../intelligence/context.js";
 import {discoverApis,scanSecurity,detectProjectPackages} from "../../intelligence/scanners.js";
@@ -20,15 +19,16 @@ const Row=({title,meta,onClick})=><button className="table-row" onClick={onClick
 export default function IntelligencePanel({index,health,project,aiConfig,setAIConfig,openFile}){
  const [tab,setTab]=useState("overview"),[query,setQuery]=useState(""),[question,setQuestion]=useState(""),[evidence,setEvidence]=useState(null),[answer,setAnswer]=useState(""),[busy,setBusy]=useState(false),[baseline,setBaseline]=useState(()=>{try{return JSON.parse(localStorage.getItem("repothink-baseline-"+(project?.name||""))||"{}")}catch{return{}}}),[mcpOutput,setMcpOutput]=useState(""),[selectedFile,setSelectedFile]=useState(""),[api,setApi]=useState([]),[security,setSecurity]=useState([]),[packages,setPackages]=useState([]),[analyzerResults,setAnalyzerResults]=useState({}),[report,setReport]=useState(""),[diagram,setDiagram]=useState(""),[diagramSvg,setDiagramSvg]=useState(""),[diagramError,setDiagramError]=useState("");
  if(!index)return <section className="panel"><h2>Intelligence Studio</h2><Empty text="Build the repository index to use M1–M6 intelligence."/></section>;
- useEffect(()=>{if(index)setPackages(index.project?.packages||detectProjectPackages(index))},[index]);
- const graph=useMemo(()=>buildCallGraph(index),[index]);
- const tests=useMemo(()=>discoverTests(index),[index]);
- const dead=useMemo(()=>deadCodeSignals(index),[index]);
- const dup=useMemo(()=>duplicateCodeSignals(index),[index]);
- const complexity=useMemo(()=>complexitySignals(index),[index]);
- const impact=useMemo(()=>changedFiles(index,baseline),[index,baseline]);
- const search=useMemo(()=>hybridSearch(index,query,{limit:50}),[index,query]);
- const arch=useMemo(()=>buildArchitecture(index),[index]);
+ const packages=useMemo(()=>index?.project?.packages||detectProjectPackages(index),[index]);
+ const graph=useMemo(()=>index?buildCallGraph(index):{edges:[],nodes:[]},[index]);
+ const tests=useMemo(()=>index?discoverTests(index):[],[index]);
+ const dead=useMemo(()=>index?deadCodeSignals(index):[],[index]);
+ const dup=useMemo(()=>index?duplicateCodeSignals(index):[],[index]);
+ const complexity=useMemo(()=>index?complexitySignals(index):[],[index]);
+ const impact=useMemo(()=>index?changedFiles(index,baseline):[],[index,baseline]);
+ const search=useMemo(()=>index?hybridSearch(index,query,{limit:50}):[],[index,query]);
+ const arch=useMemo(()=>index?buildArchitecture(index):null,[index]);
+ const cycles=useMemo(()=>index?detectCycles(index):[],[index]);
  const contextBuilder=(files,opts)=>buildRepositoryContext(index,files,opts);
  async function ask(){setBusy(true);try{const b=retrieveEvidence(index,question,{limit:30,maxFiles:8,maxTokens:12000});setEvidence(b);if(aiConfig?.apiKey)setAnswer(await askAI(aiConfig,b,index))}catch(e){setAnswer(e.message)}finally{setBusy(false)}}
  async function callTool(name,args){try{const fn=createMCPTools(index,health,contextBuilder)[name];setMcpOutput(JSON.stringify(await fn(args),null,2))}catch(e){setMcpOutput(JSON.stringify({error:e.message},null,2))}}
