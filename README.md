@@ -18,6 +18,12 @@ Open Repository → Index → Understand → Search → Explore → Analyze → 
 
 See `docs/ROADMAP.md` for the implementation tracker and `docs/ARCHITECTURE.md` for the target architecture.
 
+## CI and GitHub Pages
+
+RepoThink includes `.github/workflows/CI.yml` for frontend build verification and automatic GitHub Pages deployment from `main`. Enable **Settings → Pages → Source: GitHub Actions** once for the repository; subsequent pushes to `main` deploy automatically.
+
+The current architecture includes local Git metadata, IndexedDB index caching, repository reports, context building, and local AI provider configuration.
+
 ## Product boundaries
 
 RepoThink focuses on repository intelligence. It intentionally does not include generic developer utilities, Temenos/OFS tools, standalone markdown utilities, or the legacy Codebase Workbench backend from RepoMind.
