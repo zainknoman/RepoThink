@@ -5,6 +5,7 @@ import {hybridSearch,selectContext} from "../../intelligence/search.js";
 import {buildArchitecture} from "../../intelligence/architecture.js";
 import {detectCycles} from "../../intelligence/index/repository.js";
 import {retrieveEvidence,askAI} from "../../ai/evidence.js";
+import {AI_PROVIDERS} from "../../ai/providers.js";
 import {createMCPTools,mcpToolDefinitions} from "../../mcp/tools.js";
 import {buildRepositoryContext} from "../../intelligence/context.js";
 import {discoverApis,scanSecurity,detectProjectPackages} from "../../intelligence/scanners.js";
@@ -15,7 +16,7 @@ import {renderMermaid,buildArchitectureMermaid} from "../../intelligence/diagram
 const Button=({children,...p})=><button className="primary" {...p}>{children}</button>;
 const Row=({title,meta,onClick})=><button className="table-row" onClick={onClick}><b>{title}</b><span>{meta}</span></button>;
 
-export default function IntelligencePanel({index,health,project,aiConfig,openFile}){
+export default function IntelligencePanel({index,health,project,aiConfig,setAIConfig,openFile}){
  const [tab,setTab]=useState("overview"),[query,setQuery]=useState(""),[question,setQuestion]=useState(""),[evidence,setEvidence]=useState(null),[answer,setAnswer]=useState(""),[busy,setBusy]=useState(false),[baseline,setBaseline]=useState(()=>{try{return JSON.parse(localStorage.getItem("repothink-baseline-"+(project?.name||""))||"{}")}catch{return{}}}),[mcpOutput,setMcpOutput]=useState(""),[selectedFile,setSelectedFile]=useState(""),[api,setApi]=useState([]),[security,setSecurity]=useState([]),[packages,setPackages]=useState([]),[analyzerResults,setAnalyzerResults]=useState({}),[report,setReport]=useState(""),[diagram,setDiagram]=useState(""),[diagramSvg,setDiagramSvg]=useState(""),[diagramError,setDiagramError]=useState("");
  if(!index)return <section className="panel"><h2>Intelligence Studio</h2><Empty text="Build the repository index to use M1–M6 intelligence."/></section>;
  useEffect(()=>{if(index)setPackages(index.project?.packages||detectProjectPackages(index))},[index]);
