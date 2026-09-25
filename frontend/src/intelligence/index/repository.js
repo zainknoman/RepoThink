@@ -343,6 +343,7 @@ export async function buildRepositoryIndex(project, options = {}) {
     const content = await (await file.handle.getFile()).text();
     onProgress?.({ phase: 'analyze', current: fileIndex + 1, total: files.length, path: file.path });
     const analysis = analyzeSource(file, content);
+    analysis.source = content;
     index.files.push(analysis);
     index.stats.lines += analysis.lines;
     index.stats.bytes += analysis.bytes;
