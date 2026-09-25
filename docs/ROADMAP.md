@@ -58,77 +58,77 @@
 
 ## M1 — Code Intelligence 2.0
 
-- [ ] M1.01 Symbol resolution
-- [ ] M1.02 Definition/reference navigation
-- [ ] M1.03 Call graph
-- [ ] M1.04 Callers/callees
-- [ ] M1.05 Test discovery
-- [ ] M1.06 Dead-code signals
-- [ ] M1.07 Duplicate-code signals
-- [ ] M1.08 Complexity metrics
-- [ ] M1.09 Confidence/evidence model
-- [ ] M1.10 Intelligence regression suite
+- [x] M1.01 Symbol resolution
+- [x] M1.02 Definition/reference navigation
+- [x] M1.03 Call graph
+- [x] M1.04 Callers/callees
+- [x] M1.05 Test discovery
+- [x] M1.06 Dead-code signals
+- [x] M1.07 Duplicate-code signals
+- [x] M1.08 Complexity metrics
+- [x] M1.09 Confidence/evidence model
+- [x] M1.10 Intelligence regression suite
 
 ## M2 — Impact Intelligence
 
-- [ ] M2.01 Changed-file analysis
-- [ ] M2.02 Changed-symbol analysis
-- [ ] M2.03 Reference propagation
-- [ ] M2.04 Caller/dependent propagation
-- [ ] M2.05 API impact
-- [ ] M2.06 Test impact
-- [ ] M2.07 Git-aware impact evidence
-- [ ] M2.08 Impact report
+- [x] M2.01 Changed-file analysis
+- [x] M2.02 Changed-symbol analysis
+- [x] M2.03 Reference propagation
+- [x] M2.04 Caller/dependent propagation
+- [x] M2.05 API impact
+- [x] M2.06 Test impact
+- [x] M2.07 Git-aware impact evidence
+- [x] M2.08 Impact report
 
 ## M3 — Semantic Search & Context Engine
 
-- [ ] M3.01 Lexical search
-- [ ] M3.02 AST/symbol search
-- [ ] M3.03 Dependency-aware search
-- [ ] M3.04 Semantic search
-- [ ] M3.05 Hybrid ranking
-- [ ] M3.06 Context selection
-- [ ] M3.07 Token budgeting
-- [ ] M3.08 Context quality evaluation
+- [x] M3.01 Lexical search
+- [x] M3.02 AST/symbol search
+- [x] M3.03 Dependency-aware search
+- [x] M3.04 Semantic search
+- [x] M3.05 Hybrid ranking
+- [x] M3.06 Context selection
+- [x] M3.07 Token budgeting
+- [x] M3.08 Context quality evaluation
 
 ## M4 — Architecture Explorer
 
 **Completed:** system/module/file/symbol/API/external/test graph layers, interactive architecture model, Mermaid export, hotspots and cycles are available through the Intelligence Studio.
 
-- [ ] M4.01 System graph
-- [ ] M4.02 Module graph
-- [ ] M4.03 File/symbol graph
-- [ ] M4.04 API graph
-- [ ] M4.05 Database/external dependency graph
-- [ ] M4.06 Test graph
-- [ ] M4.07 Interactive graph explorer
-- [ ] M4.08 Mermaid export/rendering
+- [x] M4.01 System graph
+- [x] M4.02 Module graph
+- [x] M4.03 File/symbol graph
+- [x] M4.04 API graph
+- [x] M4.05 Database/external dependency graph
+- [x] M4.06 Test graph
+- [x] M4.07 Interactive graph explorer
+- [x] M4.08 Mermaid export/rendering
 
 ## M5 — Evidence-backed AI
 
-- [ ] M5.01 Repository question workflow
-- [ ] M5.02 Evidence retrieval
-- [ ] M5.03 Graph traversal for AI context
-- [ ] M5.04 Evidence-aware prompts
-- [ ] M5.05 Citation model
-- [ ] M5.06 Explain/analyze workflows
-- [ ] M5.07 AI evaluation fixtures
+- [x] M5.01 Repository question workflow
+- [x] M5.02 Evidence retrieval
+- [x] M5.03 Graph traversal for AI context
+- [x] M5.04 Evidence-aware prompts
+- [x] M5.05 Citation model
+- [x] M5.06 Explain/analyze workflows
+- [x] M5.07 AI evaluation fixtures
 
 ## M6 — MCP / Agent Integration
 
-- [ ] M6.01 repothink.search
-- [ ] M6.02 repothink.symbol
-- [ ] M6.03 repothink.definition
-- [ ] M6.04 repothink.references
-- [ ] M6.05 repothink.callers
-- [ ] M6.06 repothink.callees
-- [ ] M6.07 repothink.dependencies
-- [ ] M6.08 repothink.impact
-- [ ] M6.09 repothink.tests
-- [ ] M6.10 repothink.architecture
-- [ ] M6.11 repothink.context
-- [ ] M6.12 repothink.health
-- [ ] M6.13 repothink.explain
+- [x] M6.01 repothink.search
+- [x] M6.02 repothink.symbol
+- [x] M6.03 repothink.definition
+- [x] M6.04 repothink.references
+- [x] M6.05 repothink.callers
+- [x] M6.06 repothink.callees
+- [x] M6.07 repothink.dependencies
+- [x] M6.08 repothink.impact
+- [x] M6.09 repothink.tests
+- [x] M6.10 repothink.architecture
+- [x] M6.11 repothink.context
+- [x] M6.12 repothink.health
+- [x] M6.13 repothink.explain
 
 ## M0 acceptance criteria
 
