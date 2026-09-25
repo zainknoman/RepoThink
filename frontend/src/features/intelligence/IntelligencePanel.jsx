@@ -1,8 +1,8 @@
-import {useMemo,useState} from "react";
+import {useEffect,useMemo,useState} from "react";
 import {buildCallGraph,callers,callees,discoverTests,deadCodeSignals,duplicateCodeSignals,complexitySignals} from "../../intelligence/code.js";
 import {changedFiles,snapshotIndex,impactReport} from "../../intelligence/impact.js";
 import {hybridSearch,selectContext} from "../../intelligence/search.js";
-import {buildArchitecture,architectureMermaid} from "../../intelligence/architecture.js";
+import {buildArchitecture} from "../../intelligence/architecture.js";
 import {detectCycles} from "../../intelligence/index/repository.js";
 import {retrieveEvidence,askAI} from "../../ai/evidence.js";
 import {createMCPTools,mcpToolDefinitions} from "../../mcp/tools.js";
@@ -15,10 +15,10 @@ import {renderMermaid,buildArchitectureMermaid} from "../../intelligence/diagram
 const Button=({children,...p})=><button className="primary" {...p}>{children}</button>;
 const Row=({title,meta,onClick})=><button className="table-row" onClick={onClick}><b>{title}</b><span>{meta}</span></button>;
 
-export default function IntelligencePanel({index,health,project,aiConfig}){
+export default function IntelligencePanel({index,health,project,aiConfig,openFile}){
  const [tab,setTab]=useState("overview"),[query,setQuery]=useState(""),[question,setQuestion]=useState(""),[evidence,setEvidence]=useState(null),[answer,setAnswer]=useState(""),[busy,setBusy]=useState(false),[baseline,setBaseline]=useState(()=>{try{return JSON.parse(localStorage.getItem("repothink-baseline-"+(project?.name||""))||"{}")}catch{return{}}}),[mcpOutput,setMcpOutput]=useState(""),[selectedFile,setSelectedFile]=useState(""),[api,setApi]=useState([]),[security,setSecurity]=useState([]),[packages,setPackages]=useState([]),[analyzerResults,setAnalyzerResults]=useState({}),[report,setReport]=useState(""),[diagram,setDiagram]=useState(""),[diagramSvg,setDiagramSvg]=useState(""),[diagramError,setDiagramError]=useState("");
  if(!index)return <section className="panel"><h2>Intelligence Studio</h2><Empty text="Build the repository index to use M1–M6 intelligence."/></section>;
- useMemo(()=>{if(index)setPackages(index.project?.packages||detectProjectPackages(index))},[index]);
+ useEffect(()=>{if(index)setPackages(index.project?.packages||detectProjectPackages(index))},[index]);
  const graph=useMemo(()=>buildCallGraph(index),[index]);
  const tests=useMemo(()=>discoverTests(index),[index]);
  const dead=useMemo(()=>deadCodeSignals(index),[index]);
@@ -28,7 +28,7 @@ export default function IntelligencePanel({index,health,project,aiConfig}){
  const search=useMemo(()=>hybridSearch(index,query,{limit:50}),[index,query]);
  const arch=useMemo(()=>buildArchitecture(index),[index]);
  const contextBuilder=(files,opts)=>buildRepositoryContext(index,files,opts);
- async function ask(){setBusy(true);try{const b=retrieveEvidence(index,question,{limit:30,maxFiles:8,maxTokens:12000});setEvidence(b);if(aiConfig?.apiKey)setAnswer(await askAI(aiConfig,b))}catch(e){setAnswer(e.message)}finally{setBusy(false)}}
+ async function ask(){setBusy(true);try{const b=retrieveEvidence(index,question,{limit:30,maxFiles:8,maxTokens:12000});setEvidence(b);if(aiConfig?.apiKey)setAnswer(await askAI(aiConfig,b,index))}catch(e){setAnswer(e.message)}finally{setBusy(false)}}
  async function callTool(name,args){try{const fn=createMCPTools(index,health,contextBuilder)[name];setMcpOutput(JSON.stringify(await fn(args),null,2))}catch(e){setMcpOutput(JSON.stringify({error:e.message},null,2))}}
  function capture(){const next=snapshotIndex(index);localStorage.setItem("repothink-baseline-"+project.name,JSON.stringify(next));setBaseline(next)}
  const tabs=[["overview","Overview"],["search","Search"],["symbols","Symbols"],["architecture","Architecture"],["health","Health"],["analyzers","Analyzers"],["impact","Impact"],["api","API Discovery"],["security","Security"],["diagram","Diagram"],["reports","Reports"],["context","Context"],["ai","AI Workspace"],["m1","M1 Signals"],["m6","MCP"]];
