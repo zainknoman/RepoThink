@@ -4,7 +4,7 @@
 
 | Milestone | Goal | Status |
 |---|---|---|
-| M0 | Foundation & Product Extraction | 🔵 In progress — 10 additional tasks completed |
+| M0 | Foundation & Product Extraction | 🔵 In progress — 20 tasks completed |
 | M1 | Code Intelligence 2.0 | ⬜ Planned |
 | M2 | Impact Intelligence | ⬜ Planned |
 | M3 | Semantic Search & Context Engine | ⬜ Planned |
@@ -15,15 +15,15 @@
 ## M0 — Foundation & Product Extraction
 
 ### Product and architecture
-- [ ] M0.01 Define product documentation
-- [ ] M0.02 Define product boundaries
-- [ ] M0.03 Define target architecture
-- [ ] M0.04 Define RepoMind → RepoThink migration map
+- [x] M0.01 Define product documentation
+- [x] M0.02 Define product boundaries
+- [x] M0.03 Define target architecture
+- [x] M0.04 Define RepoMind → RepoThink migration map
 
 ### Intelligence migration
-- [ ] M0.05 Repository filesystem/index foundation
-- [ ] M0.06 Parser and AST foundation
-- [ ] M0.07 Symbols, definitions and references
+- [x] M0.05 Repository filesystem/index foundation
+- [x] M0.06 Parser and AST foundation
+- [x] M0.07 Symbols, definitions and references
 - [x] M0.08 Dependency graph
 - [x] M0.09 Health/analyzers
 - [x] M0.10 Git intelligence
@@ -37,9 +37,9 @@
 - [x] M0.16 Rebuild navigation
 - [x] M0.17 Rebuild Codebase workspace
 - [x] M0.18 Rebuild Overview
-- [ ] M0.19 Rebuild Explorer
-- [ ] M0.20 Rebuild Search
-- [ ] M0.21 Rebuild Editor
+- [x] M0.19 Rebuild Explorer
+- [x] M0.20 Rebuild Search
+- [x] M0.21 Rebuild Editor
 
 ### Product cleanup
 - [ ] M0.22 Remove Developer Tools
